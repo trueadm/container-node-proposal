@@ -59,9 +59,20 @@ console.log(document.body.innerHTML); // text
 document.body.appendChild(container);
 console.log(document.body.innerHTML); // text more text
 
+// if I remove a node from the container,
+// it won't affect the document
+
+container.removeChild(someOtherText);
+console.log(document.body.childNodes); // [ "text", "more text" ]
+
+// if I remove the container from document.body, 
+// its contents that exist as child nodes on document.body
+// and as child nodes of container, should be removed
+
 document.body.removeChild(container);
-console.log(container.childNodes); // [ "text", "more text" ]
+console.log(container.childNodes); // [ "text" ]
 console.log(document.body.childNodes); // []
+
 ```
 
 ## Why?
