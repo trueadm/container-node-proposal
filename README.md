@@ -12,7 +12,7 @@ I propose the addition of a new DOM node called the ContainerNode. ContainerNode
 
 An example of how the syntax might look:
 
-```
+```js
 var container = document.createContainerNode();
 var elem = document.createElement('div');
 var text = document.createTextNode('text');
