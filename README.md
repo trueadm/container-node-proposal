@@ -79,7 +79,110 @@ console.log(document.body.childNodes); // []
 
 ## Why?
 
-TODO
+The primary reason for adding the ContainerNode come from several problems in the virtual DOM world, specifically from libraries like Inferno and React. Some of these problems are:
+
+### Virtual DOM Components
+
+Virtual DOM libraries have an abstract concept of components, which offer the ability to "render" a virtual DOM representation that gets mounted to the DOM. Historically, they've been limited to forcing the user to have a "root" for their components mount point. A quick example is shown below (using JSX):
+
+```jsx
+function MyComponent() {
+  return (
+    <div>
+      <input name="name" placeholder="Enter name" />
+      <input name="age" placeholder="Enter age" />
+      <input name="address" placeholder="Enter address" />
+    </div>
+  );
+}
+```
+
+This is easy for a virtual DOM library to handle as the component's root DOM node becomes the root node returned by the component function. This root node can be inserted freely into an existing DOM tree at most places without any real problems. It's performant and fits in nicely with the DOM API, as other components can easily interface with this component as long as it has a single root. 
+
+The problem is, the user was force to wrap their three `<input />` nodes in a `<div />`.Ideally the user would be able to simply return an array (fragment) of nodes for the virtual DOM library to mount:
+
+```jsx
+function MyComponent() {
+  return [
+    <input name="name" placeholder="Enter name" />
+    <input name="age" placeholder="Enter age" />
+    <input name="address" placeholder="Enter address" />
+  ];
+}
+```
+
+Unlike the previous example, there is no longer a root node that can be used. If we attempt to use a DocumentFragment as the root node for the render and thus the component, it falls apart as soon as we append the component to the document. 
+
+We can however build a somewhat complex work-around (like Inferno and React's do) that says components can either have a root node or many root nodes. The problem is that building this logic into the virtual DOM library complicates things and has a knock-on effect on performance and the amount of additional code required to make things work.
+
+In the previous example, we could easily `insertBefore`, `appendChild`, `removeChild` and `replaceChild` (all very common virtual DOM operations) on virtual DOM nodes, as we always carry the a reference to the real DOM node somewhere that relates to our virtual DOM node. When we add in logic that says that reference to the real DOM node may not actually be a real DOM node and might be an abstraction, it means considerbly more logic needs to be added to the virtual DOM library.
+
+With ContainerNode, would should be able to make the component's root node that of the ContainerNode. All the logic to handle `insertBefore`, `appendChild`, `removeChild` and `replaceChild` operations on the ContainerNode and its child nodes is kept at a native DOM level, allowing for interpolation between different libraries and frameworks.
+
+So we can get around this for now like React Fibres and Inferno's VFragments do, but they're not pretty and if we can get a native solution it would be highly beneficial.
+
+### Virtual DOM Children
+
+Virtual DOM libraries can also struggle with nested arrays (this also can link to the last point if a component returns an array render). Below is an example (again, in JSX):
+
+```jsx
+function MyComponent() {
+  return (
+    <table>
+      <tr><td>Some data...</td></tr>
+      {
+        [
+          <tr><td>Some data...</td></tr>,
+          someRef,
+          someItems.map(item => <tr><td>Some data...</td></tr>),
+          <SomeComponent />
+        ]
+      }
+      <SomeComponent />
+      <tr><td>Some data...</td></tr>
+    </table>
+  );
+}
+```
+
+Typically, virtual DOM libraries get around this problem by flattening the children before mounting or patching. On large deep nested children, this can be expensive. Furthermore, what if some of the children in a particular array are keyed and others are not keyed? One massive advantage that ContainerNodes could offer virtual DOM implementations is in the handle of not only dealing with nested arrays of children, but also the process in re-arraning DOM nodes from one state to another.
+
+Given the child nodes of a ContainerNode can change independently of updating the document, it would allow virtual DOM libraries to re-order, add, remove DOM nodes from the ContainerNode without any reflows/redraw operations occuring. Upon re-attached the ContainerNode, it can do all these operations batched together, offering some solutions to problems when needing to re-order DOM nodes in an optional nature. Here's an example of a problem that virtual DOM libraries have to deal with:
+
+```jsx
+var lastChildren = [
+  <input key="1" />
+  <div key="2" />
+  <Component key="3" />
+  <div key="4" />
+  <Component key="5" />
+];
+```
+
+Upon `lastChildren` being mounted by a virtual DOM library, it could generate a ContainerNode that has the following child nodes:
+
+```[ 
+  <input>, 
+  <div></div>,
+  <span>I am a component render!</span>,
+  <div></div>,
+  <span>I am a component render!</span>,
+]
+```
+
+Then virtual DOM library is told an update has occured somewhere and it needs to carry out a patch operation with the given new children:
+
+```jsx
+var lastChildren = [
+  <Component key="3" />
+  <div key="4" />
+  <div key="2" />
+  <input key="1" />
+  <Component key="5" />
+];
+```
+
+The virtual DOM library might be able to solve this problem in a better way now it can use ContainerNodes. It would iterate through `nextChildren`, using a map and the key of the `nextChildren` child virtual DOM node to get the DOM node reference from `lastChildren`. It would then append the DOM node reference to the newly created ContainerNode. As the new ContainerNode is not attached to the document doing this should incur no DOM operations. Once the virtual DOM library has finished created the new ContainerNode, it can then replace the old ContainerNode with itself, letting the browser carry out all the necessary DOM operations (with an optimised method for doing so) to move the old DOM child nodes to their new positions.
 
 ## Can we already do this?
 
