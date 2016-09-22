@@ -145,9 +145,11 @@ function MyComponent() {
 }
 ```
 
-Typically, virtual DOM libraries get around this problem by flattening the children before mounting or patching. On large deep nested children, this can be expensive. Furthermore, what if some of the children in a particular array are keyed and others are not keyed? One massive advantage that ContainerNodes could offer virtual DOM implementations is in the handle of not only dealing with nested arrays of children, but also the process in re-arraning DOM nodes from one state to another.
+Typically, virtual DOM libraries get around this problem by flattening the children before mounting or patching. On large deep nested children, this can be expensive. Furthermore, what if some of the children in a particular array are keyed* and others are not keyed? One massive advantage that ContainerNodes could offer virtual DOM implementations is in the handle of not only dealing with nested arrays of children, but also the process in re-arraning DOM nodes from one state to another.
 
 Given the child nodes of a ContainerNode can change independently of updating the document, it would allow virtual DOM libraries to re-order, add, remove DOM nodes from the ContainerNode without any reflows/redraw operations occuring. Upon re-attached the ContainerNode, it can do all these operations batched together, offering some solutions to problems when needing to re-order DOM nodes in an optional nature. Here's an example of a problem that virtual DOM libraries have to deal with:
+
+* Keys are a virtual DOM concept that allows for the tracking of DOM ndoes by a common unique ID
 
 ```jsx
 var lastChildren = [
