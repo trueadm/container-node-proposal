@@ -10,7 +10,7 @@ I propose the addition of a new DOM node called the ContainerNode. ContainerNode
 
 - Child nodes within the ContainerNode will always remain as child nodes until explicitly removed on the ContainerNode itself. 
 
-- If a child node gets inserted at another position in the document, upon the ContainerNode being inserted (even if it was already inserted previously) all children nodes will return back into the position under the ContainerNode, in the order as they appear in the ContainerNode’s children NodeList.
+- If a child node of a ContainerNode gets inserted at another position in the document, upon the ContainerNode being inserted (even if it was already inserted previously) all children nodes will return back into the position under the ContainerNode, in the order as they appear in the ContainerNode’s children NodeList.
 
 - Even though ContainerNode is not actually in the document, it should be possible to call `removeChild` on a Node A that has had a DocumentNode's child nodes previously inserted, whereby any nodes that exist as child nodes in both Node A and the DocumentNode should get removed from Node A.
 
@@ -187,3 +187,7 @@ The virtual DOM library might be able to solve this problem in a better way now 
 ## Can we already do this?
 
 TODO
+
+## Why ContainerNode?
+
+It's doesn't have to be, some have suggested it should be called CollectionNode. I'm not too bothered on the name, just what it brings to those who need these features.
