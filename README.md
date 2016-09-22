@@ -6,11 +6,11 @@ I propose the addition of a new DOM node called the ContainerNode. ContainerNode
 
 - ContainerNodes will *not* lose their children upon being inserted into the document.
 
-- Children nodes within the ContainerNode will always remain as children nodes until explicitly removed on the ContainerNode itself. 
+- Child nodes within the ContainerNode will always remain as child nodes until explicitly removed on the ContainerNode itself. 
 
-- If children nodes have been inserted at other position in the document, upon the ContainerNode being inserted (even if it was already inserted previously) all children nodes will return back into the position under the ContainerNode, in the order as they appear in the ContainerNode’s children NodeList.
+- If a child node gets inserted at another position in the document, upon the ContainerNode being inserted (even if it was already inserted previously) all children nodes will return back into the position under the ContainerNode, in the order as they appear in the ContainerNode’s children NodeList.
 
-- Even though ContainerNode is not actually in the document, it should be possible to call `removeChild` on a parent that has had a DocumentNode previously attached. Only the contents of the ContainerNode that exist as child nodes on the parent should be removed.
+- Even though ContainerNode is not actually in the document, it should be possible to call `removeChild` on a Node A that has had a DocumentNode's child nodes previously inserted, whereby any nodes that exist as child nodes in both Node A and the DocumentNode should get removed from Node A.
 
 **Example**
 
