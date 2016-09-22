@@ -1,6 +1,8 @@
+** This document is a work-in-progress **
+
 ## What?
 
-I propose the addition of a new DOM node called the ContainerNode. ContainerNodes would share some similarities to DocumentFragments, in that they are buckets for other DOM nodes; yet there would be some key differences. 
+I propose the addition of a new DOM node called the ContainerNode. ContainerNodes have similarities with DocumentFragments, in that they are buckets for other DOM nodes and do not get inserted to the document. This is a basic overview of DocumentFragments:
 
 - Like DocumentFragments, ContainerNodes *do not* get inserted into the document, rather their contents get inserted upon the ContainerNode being inserted.
 
